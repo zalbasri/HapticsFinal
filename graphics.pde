@@ -1,402 +1,322 @@
- 
 import processing.serial.*;
- 
-int twoD_mode = 0;
- 
-Serial myPort;        // The serial port
+
+int twoDMode = 0;
+
+Serial myPort; // The serial port
 String val;
-String mass_pos;
-String handle_pos;
-float wall_pos = 0;
-float prev_wall_pos = 0;
-float user_pos = 0;
-float prev_user_pos = 0;
-float anchor_pos = 0.005;
-float pixel_wall_loc = 0;
-float pixel_anchor_pos = 0;
-float pixel_ball_width = 20;
-float pixel_user_pos = 0;
+String massPos;
+String handlePos;
+float wallPos = 0;
+float prevWallPos = 0;
+float userPos = 0;
+float prevUserPos = 0;
+float anchorPos = 0.005;
+float pixelWallLoc = 0;
+float pixelAnchorPos = 0;
+float pixelBallWidth = 20;
+float pixelUserPos = 0;
 String[] list;
-int key_press = 0;
-int char_position_x = 300;      //character position in pixels, x coordinate
-int char_position_y = 300;      //character position in pixels, y coordinate
-float char_theta = 0;           //character facing direction, horizontal is 0
-int pixel_stride_length = 4;  //character speed controller, sets the number of strides the character moves every loop
-float theta_stride_length = 0.02*PI;
-static int screen_size_x = 600;
-static int screen_size_y = 600;
-int num_walls = 16;
-int wall_width = floor(screen_size_x/num_walls);  // wall width
-boolean orb_not_generated = true;
+int keyPressed = 0;
+int charPositionX = 300; // Character position in pixels, x coordinate
+int charPositionY = 300; // Character position in pixels, y coordinate
+float charTheta = 0; // Character facing direction, horizontal is 0
+int pixelStrideLength = 4; // Character speed controller, sets the number of strides the character moves every loop
+float thetaStrideLength = 0.02 * PI;
+static int screenSizeX = 600;
+static int screenSizeY = 600;
+int numWalls = 16;
+int wallWidth = floor(screenSizeX / numWalls); // Wall width
+boolean orbNotGenerated = true;
 boolean win = false;
-int orb_position_x = 0; 
-int orb_position_y = 0;
-int orb_distance_x;  //distance to orb in x direction
-int orb_distance_y;  //distance to orb in y direction
-int orb_distance;    //manhattan distance to orb
- 
- 
-int[][] wall_array = {  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1},
-                     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
- 
- 
- 
+int orbPositionX = 0;
+int orbPositionY = 0;
+int orbDistanceX; // Distance to orb in x direction
+int orbDistanceY; // Distance to orb in y direction
+int orbDistance; // Manhattan distance to orb
+
+int[][] wallArray = {
+  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+  {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+  {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
+
 void settings() {
-  size(screen_size_x, screen_size_y);
+  size(screenSizeX, screenSizeY);
 }
- 
-void setup () {
-  // set the window size:
-   
- 
+
+void setup() {
+  // Set the window size
   // List all the available serial ports
-  //println(Serial.list());
+  // println(Serial.list());
   
   // Check the listed serial ports in your machine
-  // and use the correct index number in Serial.list()[].
-  //myPort = new Serial(this, Serial.list()[0], 230400);  //make sure baud rate matches Arduino
- 
- 
-  // A serialEvent() is generated when a newline character is received :
-  //myPort.bufferUntil('\n');
-  background(0);      // set inital background:
+  // and use the correct index number in Serial.list()[]
+  // myPort = new Serial(this, Serial.list()[0], 230400); // make sure baud rate matches Arduino
+  
+  // A serialEvent() is generated when a newline character is received
+  // myPort.bufferUntil('\n');
+  background(0); // Set initial background
   hint(ENABLE_STROKE_PURE);
 }
- 
-void keyPressed(){
-  if (key == CODED){
-    if (keyCode == UP){
-     key_press = 1;
-    }
-    else if (keyCode == DOWN){
-     key_press = 2;
-    }
-    else if (keyCode == LEFT){
-     key_press = 3;
-    }
-    else if (keyCode == RIGHT){
-     key_press = 4;
+
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == UP) {
+      keyPressed = 1;
+    } else if (keyCode == DOWN) {
+      keyPressed = 2;
+    } else if (keyCode == LEFT) {
+      keyPressed = 3;
+    } else if (keyCode == RIGHT) {
+      keyPressed = 4;
     }
   }
 }
- 
- 
- 
- 
-  
-void draw () {
-  // everything happens in the serialEvent()
-  background(0); //uncomment if you want to control a ball
-  stroke(127,34,255);     //stroke color
-  strokeWeight(2);        //stroke wider
-  
+
+void draw() {
+  // Everything happens in the serialEvent()
+  background(0); // Uncomment if you want to control a ball
+  stroke(127, 34, 255); // Stroke color
+  strokeWeight(2); // Stroke width
+
   print(" key pressed: ");
-  print(key_press);
+  print(keyPressed);
   print(" theta :");
-  print(char_theta);
+  print(charTheta);
   print(" position x:");
-  print(char_position_x);
+  print(charPositionX);
   print(" position y:");
-  print(char_position_y);
+  print(charPositionY);
   print("\n");
-  
-  //generate the point where the orb is
-  
- 
-  floor(random(0,num_walls));
-  
-  while(orb_not_generated == true){
-    orb_position_x =   floor(random(0,num_walls));
-    orb_position_y =   floor(random(0,num_walls));
-    //check for walls
-    if (wall_array[orb_position_y][orb_position_x] == 0){
-      orb_not_generated = false;}
+
+  // Generate the point where the orb is
+  floor(random(0, numWalls));
+
+  while (orbNotGenerated == true) {
+    orbPositionX = floor(random(0, numWalls));
+    orbPositionY = floor(random(0, numWalls));
+    // Check for walls
+    if (wallArray[orbPositionY][orbPositionX] == 0) {
+      orbNotGenerated = false;
+    }
   }
- 
-  println(orb_position_x);
-  println(orb_position_y);
-  
-  //set position before checking for collisions
-  int temp_position_x = char_position_x;
-  int temp_position_y = char_position_y;
- 
-  
-  if (key_press == 1)
-  {
-    temp_position_x = char_position_x + floor(pixel_stride_length*cos(char_theta));
-    temp_position_y = char_position_y + floor(pixel_stride_length*sin(char_theta));
+
+  println(orbPositionX);
+  println(orbPositionY);
+
+  // Set position before checking for collisions
+  int tempPositionX = charPositionX;
+  int tempPositionY = charPositionY;
+
+  if (keyPressed == 1) {
+    tempPositionX = charPositionX + floor(pixelStrideLength * cos(charTheta));
+    tempPositionY = charPositionY + floor(pixelStrideLength * sin(charTheta));
+  } else if (keyPressed == 2) {
+    tempPositionX = charPositionX - floor(pixelStrideLength * cos(charTheta));
+    tempPositionY = charPositionY - floor(pixelStrideLength * sin(charTheta));
+  } else if (keyPressed == 3) {
+    charTheta = charTheta - thetaStrideLength;
+  } else if (keyPressed == 4) {
+    charTheta = charTheta + thetaStrideLength;
   }
-  else if (key_press == 2)
-  {
-    temp_position_x = char_position_x - floor(pixel_stride_length*cos(char_theta));
-    temp_position_y = char_position_y - floor(pixel_stride_length*sin(char_theta));
-  }
-  else if (key_press == 3)
-  {
-    char_theta = char_theta - theta_stride_length;
-  }
-  else if (key_press == 4)
-  { 
-    char_theta = char_theta + theta_stride_length;
-  } 
-    
-  //check for collisions with the walls
-  int i = 0;
-  int collision_flag = 0;
-  while (i < num_walls)
-  {
-    int j = 0;
-    while (j < num_walls)
-    {
-      if (wall_array[i][j] == 1)
-    {
-      if ((temp_position_x >= j*wall_width) && (temp_position_x <= (j+1)*wall_width))
-        {
-          if ((temp_position_y >= i*wall_width) && (temp_position_y <= (i+1)*wall_width))
-              collision_flag = 1;
+
+  // Check for collisions with the walls
+  int collisionFlag = 0;
+  for (int i = 0; i < numWalls; i++) {
+    for (int j = 0; j < numWalls; j++) {
+      if (wallArray[i][j] == 1) {
+        if ((tempPositionX >= j * wallWidth) && (tempPositionX <= (j + 1) * wallWidth)) {
+          if ((tempPositionY >= i * wallWidth) && (tempPositionY <= (i + 1) * wallWidth))
+            collisionFlag = 1;
         }
+      }
     }
-    
-      j += 1;
-    }
-    i += 1;
   }
-  
-  if (collision_flag == 0)
-  {
-    char_position_x = temp_position_x;
-    char_position_y = temp_position_y;
+
+  if (collisionFlag == 0) {
+    charPositionX = tempPositionX;
+    charPositionY = tempPositionY;
   }
-  
-  // check for outer boundary collisions
-  if (char_position_x > screen_size_x)
-  {
-    char_position_x = screen_size_x;
+
+  // Check for outer boundary collisions
+  if (charPositionX > screenSizeX) {
+    charPositionX = screenSizeX;
+  } else if (charPositionX < 0) {
+    charPositionX = 0;
+  } else if (charPositionY > screenSizeY) {
+    charPositionY = screenSizeY;
+  } else if (charPositionY < 0) {
+    charPositionY = 0;
   }
-  else if (char_position_x < 0)
-  {
-    char_position_x = 0;
+
+  int gridX = floor(charPositionX / wallWidth); // Which cell is the player in the X direction?
+  int gridY = floor(charPositionY / wallWidth); // Which cell is the player in the Y direction?
+
+  // Check win
+  if ((gridX - orbPositionX == 0) && (gridY - orbPositionY == 0)) {
+    win = true;
   }
-  else if (char_position_y > screen_size_y)
-  {
-    char_position_y = screen_size_y;
+
+  if (win == true) {
+    println("You've found the orb!");
   }
-  else if (char_position_y < 0)
-  {
-    char_position_y = 0;
-  }
-  
-  int grid_x = floor(char_position_x/wall_width); //which cell is the player in the X direction?
-  int grid_y = floor(char_position_y/wall_width); //which cell is the player in the Y direction?
-  
- 
-  //check win
-  
-  if ((grid_x - orb_position_x == 0) && (grid_y - orb_position_y == 0)){
-    win = true;}
-    
-  if(win == true){
-    println("you've found the orb!");}
-    
-  
-  //distance
-  orb_distance_x = abs(grid_x - orb_position_x);
-  orb_distance_y = abs(grid_y - orb_position_y);
-  orb_distance = orb_distance_x + orb_distance_y;
-  
+
+  // Distance
+  orbDistanceX = abs(gridX - orbPositionX);
+  orbDistanceY = abs(gridY - orbPositionY);
+  orbDistance = orbDistanceX + orbDistanceY;
+
   print("\nOrb distance x :");
-  print(orb_distance_x);
+  print(orbDistanceX);
   print("\tOrb distance y :");
-  print(orb_distance_y);
-  
-  //add random object position setting code here
-  //calculate position from object to the character goes here
- 
-  if (twoD_mode == 1){
-  //draw the character in 2D
-    ellipse(char_position_x, char_position_y, 10,10); 
-    
-    //draw the walls in 2D
-    int i2 = 0;
-    while (i2 < num_walls)
-    {
-      int j2 = 0;
-      while (j2 < num_walls)
-      {
-        if (wall_array[i2][j2] == 1)
-      {
-        square(j2*wall_width, i2*wall_width,  wall_width);
+  print(orbDistanceY);
+
+  // Add random object position setting code here
+  // Calculate position from object to the character goes here
+
+  if (twoDMode == 1) {
+    // Draw the character in 2D
+    ellipse(charPositionX, charPositionY, 10, 10);
+
+    // Draw the walls in 2D
+    for (int i = 0; i < numWalls; i++) {
+      for (int j = 0; j < numWalls; j++) {
+        if (wallArray[i][j] == 1) {
+          square(j * wallWidth, i * wallWidth, wallWidth);
+        }
       }
-      
-        j2 += 1;
-      }
-      i2 += 1;
     }
-    }
-    
-    if (twoD_mode == 0){
-      
-      //define camera plane vector and direction vector, set field of view
-      float FOV_mod = 0.66;
-      float dvector_x = cos(char_theta);
-      float dvector_y = sin(char_theta);
-      float camplane_x = -FOV_mod*sin(char_theta);
-      float camplane_y = FOV_mod*cos(char_theta);
-      
-      stroke(150,150,150);
-      square(0, 0, 600);
-      stroke(50,50,50);
-      square(0, 0, 600);
-      
-      for (int x = 0; x < screen_size_x; x++)
-      {  
-              float X_float = x;
-              float camX = 2*X_float/screen_size_x - 1; //camera space X coordinate
-              float RayDir_x = dvector_x + camplane_x*camX;
-              float RayDir_y = dvector_y + camplane_y*camX;
-              
-              int map_x = floor(char_position_x/wall_width); //which cell is the player in the X direction?
-              int map_y = floor(char_position_y/wall_width); //which cell is the player in the Y direction?
-              
-              float side_dist_x = 0; //distance to nearest X side
-              float side_dist_y = 0; //distance to nearest Y side
-              
-              float delta_dist_x = 0;
-              float delta_dist_y = 0;
-              
-              //calculate the stepping distance
-              
-              if (RayDir_x == 0)
-              {
-                delta_dist_x = 1e30;
-              }
-              else
-              {
-                delta_dist_x = abs(1/ RayDir_x);
-              }
-              
-              if (RayDir_y == 0)
-              {
-                delta_dist_y = 1e30;
-              }
-              else
-              {
-                delta_dist_y = abs(1/ RayDir_y);
-              }
-                 
-             
-              float perp_wall_dist; //distance to the wall perpendicular to the camera plane
-              
-              //which direction to step in (+-1)
-              int stepX = 1;
-              int stepY = 1;
-              
-              int hit = 0; //wall hit check flag
-              int side = 0; // which orientation wall, vertical or horizontal
-              
-              //calculate initial distance to side
-              if (RayDir_x < 0)
-              {
-                stepX = -1;
-                side_dist_x = (char_position_x - map_x*wall_width)*delta_dist_x;
-              }
-              else
-              {
-                stepX = 1;
-                side_dist_x = ((map_x+1)*wall_width - char_position_x)*delta_dist_x;
-              }
-              if (RayDir_y < 0)
-              {
-                stepY = -1;
-                side_dist_y = (char_position_y - map_y*wall_width)*delta_dist_y;
-              }
-              else
-              {
-                stepY = 1;
-                side_dist_y = ((map_y+1)*wall_width - char_position_y)*delta_dist_y;
-              }
-              
-              
-              //DDA
-              while(hit == 0)
-              {
-                
-                //advance the ray
-                if (side_dist_x < side_dist_y)
-                {
-                  side_dist_x += delta_dist_x*wall_width;
-                  map_x += stepX;
-                  side = 0;
-                }
-                else 
-                {
-                  side_dist_y += delta_dist_y*wall_width;
-                  map_y += stepY;
-                  side = 1;
-                }
-                if (wall_array[map_y][map_x] > 0)
-                hit = 1;
-              }
-              
-              //calculate perpendicular distance to the wall
-              if (side == 0)
-              {
-                perp_wall_dist = (side_dist_x - delta_dist_x*wall_width);
-              }
-              else 
-              {
-                perp_wall_dist = (side_dist_y - delta_dist_y*wall_width);
-              }
-              
-              
-              perp_wall_dist = perp_wall_dist/(screen_size_x/2);
-              
- 
-              
-              int lineheight = floor(screen_size_y/(perp_wall_dist*10));
-              int draw_start = -lineheight/2 + screen_size_y/2;
- 
-              if(draw_start < 0) 
-                draw_start = 0;
- 
-              int draw_end = lineheight/2 + screen_size_y/2;
-              
-              if(draw_end > screen_size_y)
-                draw_end = screen_size_y;
- 
-              if (side == 1)
-                {
-                    stroke(220,220,220);     //stroke color for vertical walls
-                }
-              else
-                {
-                  stroke(110,110,110);      //stroke color for horizontal walls
-                }
-                
-              line(x, draw_start, x, draw_end);
- 
-      }
- 
-    }
- 
-  key_press = 0;
-}
- 
- 
-void serialEvent (Serial myPort) {
-  //logic for communicating to arduino goes here
   }
+
+  if (twoDMode == 0) {
+    // Define camera plane vector and direction vector, set field of view
+    float FOVMod = 0.66;
+    float dVectorX = cos(charTheta);
+    float dVectorY = sin(charTheta);
+    float camPlaneX = -FOVMod * sin(charTheta);
+    float camPlaneY = FOVMod * cos(charTheta);
+
+    stroke(150, 150, 150);
+    square(0, 0, 600);
+    stroke(50, 50, 50);
+    square(0, 0, 600);
+
+    for (int x = 0; x < screenSizeX; x++) {
+      float XFloat = x;
+      float camX = 2 * XFloat / screenSizeX - 1; // Camera space X coordinate
+      float rayDirX = dVectorX + camPlaneX * camX;
+      float rayDirY = dVectorY + camPlaneY * camX;
+
+      int mapX = floor(charPositionX / wallWidth); // Which cell is the player in the X direction?
+      int mapY = floor(charPositionY / wallWidth); // Which cell is the player in the Y direction?
+
+      float sideDistX = 0; // Distance to nearest X side
+      float sideDistY = 0; // Distance to nearest Y side
+
+      float deltaDistX = 0;
+      float deltaDistY = 0;
+
+      // Calculate the stepping distance
+      if (rayDirX == 0) {
+        deltaDistX = 1e30;
+      } else {
+        deltaDistX = abs(1 / rayDirX);
+      }
+
+      if (rayDirY == 0) {
+        deltaDistY = 1e30;
+      } else {
+        deltaDistY = abs(1 / rayDirY);
+      }
+
+      float perpWallDist; // Distance to the wall perpendicular to the camera plane
+
+      // Which direction to step in (+-1)
+      int stepX = 1;
+      int stepY = 1;
+
+      int hit = 0; // Wall hit check flag
+      int side = 0; // Which orientation wall, vertical or horizontal
+
+      // Calculate initial distance to side
+      if (rayDirX < 0) {
+        stepX = -1;
+        sideDistX = (charPositionX - mapX * wallWidth) * deltaDistX;
+      } else {
+        stepX = 1;
+        sideDistX = ((mapX + 1) * wallWidth - charPositionX) * deltaDistX;
+     
+        if (rayDirY < 0) {
+          stepY = -1;
+          sideDistY = (charPositionY - mapY * wallWidth) * deltaDistY;
+        } else {
+          stepY = 1;
+          sideDistY = ((mapY + 1) * wallWidth - charPositionY) * deltaDistY;
+        }
+  
+        // DDA
+        while (hit == 0) {
+          // Advance the ray
+          if (sideDistX < sideDistY) {
+            sideDistX += deltaDistX * wallWidth;
+            mapX += stepX;
+            side = 0;
+          } else {
+            sideDistY += deltaDistY * wallWidth;
+            mapY += stepY;
+            side = 1;
+          }
+          if (wallArray[mapY][mapX] > 0)
+            hit = 1;
+        }
+  
+        // Calculate perpendicular distance to the wall
+        if (side == 0) {
+          perpWallDist = (sideDistX - deltaDistX * wallWidth);
+        } else {
+          perpWallDist = (sideDistY - deltaDistY * wallWidth);
+        }
+  
+        perpWallDist = perpWallDist / (screenSizeX / 2);
+  
+        int lineHeight = floor(screenSizeY / (perpWallDist * 10));
+        int drawStart = -lineHeight / 2 + screenSizeY / 2;
+  
+        if (drawStart < 0)
+          drawStart = 0;
+  
+        int drawEnd = lineHeight / 2 + screenSizeY / 2;
+  
+        if (drawEnd > screenSizeY)
+          drawEnd = screenSizeY;
+  
+        if (side == 1) {
+          stroke(220, 220, 220); // Stroke color for vertical walls
+        } else {
+          stroke(110, 110, 110); // Stroke color for horizontal walls
+        }
+  
+        line(x, drawStart, x, drawEnd);
+      }
+    }
+  }
+
+  keyPressed = 0;
+}
+
+void serialEvent(Serial myPort) {
+  //logic for communicating to arduino goes here
+}
