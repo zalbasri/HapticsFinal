@@ -1,3 +1,4 @@
+ 
 import processing.serial.*;
  
 int twoD_mode = 0;
@@ -59,19 +60,10 @@ void settings() {
 }
  
 void setup () {
-  // set the window size:
-   
- 
-  // List all the available serial ports
-  //println(Serial.list());
-  
-  // Check the listed serial ports in your machine
-  // and use the correct index number in Serial.list()[].
-  //myPort = new Serial(this, Serial.list()[0], 230400);  //make sure baud rate matches Arduino
- 
- 
-  // A serialEvent() is generated when a newline character is received :
-  //myPort.bufferUntil('\n');
+  println(Serial.list());
+  String portName = Serial.list()[5]; //change the 0 to a 1 or 2 etc. to match your port
+  println(portName);
+  myPort = new Serial(this, portName, 115200); //make sure baud rate matches Arduino
   background(0);      // set inital background:
   hint(ENABLE_STROKE_PURE);
 }
@@ -217,6 +209,8 @@ void draw () {
   orb_distance_y = abs(grid_y - orb_position_y);
   orb_distance = orb_distance_x + orb_distance_y;
   
+  myPort.write(orb_distance); 
+  
   print("\nOrb distance x :");
   print(orb_distance_x);
   print("\tOrb distance y :");
@@ -266,6 +260,9 @@ void draw () {
       stroke(50,125,50);
       fill(50,125,50);
       square(0, 300, 600);
+ 
+      wall_array[orb_position_y][orb_position_x] = 2;
+ 
       
       for (int x = 0; x < screen_size_x; x++)
       {  
@@ -353,9 +350,13 @@ void draw () {
                   map_y += stepY;
                   side = 1;
                 }
-                if (wall_array[map_y][map_x] > 0)
+                if (wall_array[map_y][map_x] == 1)
                 hit = 1;
+                else if (wall_array[map_y][map_x] == 2 && orb_distance < 4)
+                hit = 2;
               }
+              
+ 
               
               //calculate perpendicular distance to the wall
               if (side == 0)
@@ -384,13 +385,21 @@ void draw () {
               if(draw_end > screen_size_y)
                 draw_end = screen_size_y;
  
-              if (side == 1)
+              if (side == 1 && hit == 1)
                 {
                     stroke(150,150,150);     //stroke color for vertical walls
                 }
-              else
+              else if (side == 0 && hit == 1)
                 {
                   stroke(55,55,55);      //stroke color for horizontal walls
+                }
+              else if (side == 1 && hit == 2)
+                {
+                 stroke(255,255,100);      //stroke color for horizontal walls
+                }
+              else if (side == 0 && hit == 2)
+                {
+                 stroke(127,127,50);      //stroke color for horizontal walls
                 }
                 
               line(x, draw_start, x, draw_end);
@@ -405,5 +414,4 @@ void draw () {
  
 void serialEvent (Serial myPort) {
   //logic for communicating to arduino goes here
-  
-}
+  }
