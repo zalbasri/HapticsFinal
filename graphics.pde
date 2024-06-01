@@ -257,28 +257,15 @@ void draw () {
       float camplane_y = FOV_mod*cos(char_theta);
        
       //draw the sky
-      stroke(31, 8, 51);
-      fill(31, 8, 51);
+      stroke(137, 179, 245);
+      fill(137, 179, 245);
       square(0, -300, 600);
-      stroke(80, 30, 103);
-      fill(80, 30, 103);
-      rect(0, 50, 600, 300);
-      stroke(53, 33, 117);
-      fill(53, 33, 117);
-      rect(0, 100, 600, 300);
-      
+ 
       
       //d
       stroke(50,125,50);
       fill(50,125,50);
       square(0, 300, 600);
-      stroke(255,255,255);
-      fill(255,255,255);
-      circle(20,20,20);
-      
- 
-      
- 
       
       for (int x = 0; x < screen_size_x; x++)
       {  
@@ -418,4 +405,5 @@ void draw () {
  
 void serialEvent (Serial myPort) {
   //logic for communicating to arduino goes here
-  }
+  
+}
