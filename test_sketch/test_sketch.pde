@@ -12,11 +12,12 @@ void setup() {
 
 void draw() {
   if (mousePressed == true) {
-    int val = 1;
-    myPort.write(val);         //send a 1
-    println("1");   
+    int val = 32;
+    myPort.write(Integer.toString(val));         //send a 1
+    myPort.write('\n');  
   } else {                           //otherwise
-    int val = 0;
-    myPort.write(val);          //send a 0
+    int val = 10;
+    myPort.write(Integer.toString(val));          //send a 0
+    myPort.write('\n');
   }   
 }

@@ -209,7 +209,8 @@ void draw () {
   orb_distance_y = abs(grid_y - orb_position_y);
   orb_distance = orb_distance_x + orb_distance_y;
   
-  myPort.write(orb_distance); 
+  myPort.write(Integer.toString(orb_distance)); 
+  myPort.write('\n');
   
   print("\nOrb distance x :");
   print(orb_distance_x);
@@ -410,8 +411,3 @@ void draw () {
  
   key_press = 0;
 }
- 
- 
-void serialEvent (Serial myPort) {
-  //logic for communicating to arduino goes here
-  }

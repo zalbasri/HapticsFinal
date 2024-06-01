@@ -30,8 +30,9 @@ void setup() {
 }
 
 void loop() {
-    if (Serial.available() > 0) {
-        distance = Serial.parseInt(); // Read distance value from Serial input
+    if (Serial.available()) {
+        String input = Serial.readStringUntil('\n'); // Read distance value from Serial input
+        distance = input.toInt(); 
         // Ensure distance is within expected range
         if (distance < 0) distance = 0;
         if (distance > 32) distance = 32;
@@ -43,23 +44,14 @@ void loop() {
         // Assuming PWM needs to be adjusted from 0 to 255
         int pwmValue = map(targetTemp, 75, 105, 0, 255);
         analogWrite(PWMPin, pwmValue); // Write PWM value to Peltier
-
-        Serial.print("Distance: ");
-        Serial.print(distance);
-        Serial.print(", Target Temp: ");
-        Serial.print(targetTemp);
-        Serial.print("F, PWM Value: ");
-        Serial.println(pwmValue);
     }
 
     // Check if new temperature data is ready
     if (mySTTS.dataReady()) {
         mySTTS.getTemperatureF(&temperature);
-
-        Serial.print("Temp: ");
-        Serial.print(temperature);
-        Serial.println("F");
+//
+//        Serial.print("Temp: ");
+//        Serial.print(temperature);
+//        Serial.println("F");
     }
-
-    delay(1000);
 }
