@@ -18,8 +18,8 @@ float pixel_ball_width = 20;
 float pixel_user_pos = 0;
 String[] list;
 int key_press = 0;
-int char_position_x = 300;      //character position in pixels, x coordinate
-int char_position_y = 300;      //character position in pixels, y coordinate
+int char_position_x = 500;//300;      //character position in pixels, x coordinate
+int char_position_y = 500;//300;      //character position in pixels, y coordinate
 float char_theta = 0;           //character facing direction, horizontal is 0
 int pixel_stride_length = 4;  //character speed controller, sets the number of strides the character moves every loop
 float theta_stride_length = 0.02*PI;
@@ -107,13 +107,9 @@ void draw () {
   print("\n");
   
   //generate the point where the orb is
-  
- 
-  floor(random(0,num_walls));
-  
   while(orb_not_generated == true){
-    orb_position_x =   floor(random(0,num_walls));
-    orb_position_y =   floor(random(0,num_walls));
+    orb_position_x = 1;floor(random(0,num_walls));
+    orb_position_y = 1;floor(random(0,num_walls));
     //check for walls
     if (wall_array[orb_position_y][orb_position_x] == 0){
       orb_not_generated = false;}
