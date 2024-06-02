@@ -5,7 +5,8 @@ const int PWMPin = 3; // Set Peltier pin
 
 SparkFun_STTS22H mySTTS;
 float temperature; // Temperature read from sensor
-int distance;
+float targetTemp = 75.0;
+int distance = 32;
 
 void setup() {
     Wire.begin();
@@ -30,6 +31,11 @@ void setup() {
 }
 
 void loop() {
+    // Check if new temperature data is ready
+    if (mySTTS.dataReady()) {
+        mySTTS.getTemperatureF(&temperature);
+    }
+    
     // Check if there is any input from the Serial Monitor
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n'); // Read user input until newline
@@ -40,29 +46,19 @@ void loop() {
         if (distance > 32) distance = 32;
 
         // Map distance (0-32) to temperature range (75-105)
-        float targetTemp = map(distance, 0, 32, 105, 75);
-
-        // Adjust PWM based on target temperature
-        // Assuming PWM needs to be adjusted from 0 to 255
-        int pwmValue = map(targetTemp, 75, 105, 0, 255);
-        analogWrite(PWMPin, pwmValue); // Write PWM value to Peltier
-
-        Serial.print("Distance: ");
-        Serial.print(distance);
-        Serial.print(", Target Temp: ");
-        Serial.print(targetTemp);
-        Serial.print("F, PWM Value: ");
-        Serial.println(pwmValue);
+        targetTemp = map(distance, 0, 32, 105, 75);
     }
 
-    // Check if new temperature data is ready
-    if (mySTTS.dataReady()) {
-        mySTTS.getTemperatureF(&temperature);
-
-        Serial.print("Temp: ");
-        Serial.print(temperature);
-        Serial.println("F");
+    if (temperature < targetTemp) {
+      analogWrite(PWMPin, 255); 
+    } else {
+      analogWrite(PWMPin, 0);
     }
-
-    delay(1000);
+    
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.print(", Target Temp: ");
+    Serial.print(targetTemp);
+    Serial.print("F, Current Temp: ");
+    Serial.println(temperature);
 }
