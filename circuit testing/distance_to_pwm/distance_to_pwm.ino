@@ -2,6 +2,7 @@
 #include "SparkFun_STTS22H.h"
 
 const int PWMPin = 3; // Set Peltier pin
+const int ledPin = 6; // LED pin for testing
 
 SparkFun_STTS22H mySTTS;
 float temperature; // Temperature read from sensor
@@ -13,9 +14,8 @@ void setup() {
     pinMode(PWMPin, OUTPUT);
     Serial.begin(115200);
 
-    if (!mySTTS.begin()) {
+    while (!mySTTS.begin()) {
         Serial.println("Did not begin.");
-        while (1);
     }
 
     Serial.println("Ready");
@@ -43,14 +43,15 @@ void loop() {
 
         // Ensure distance is within expected range
         if (distance < 0) distance = 0;
-        if (distance > 32) distance = 32;
+        if (distance > 28) distance = 28;
 
-        // Map distance (0-32) to temperature range (75-105)
-        targetTemp = map(distance, 0, 32, 105, 75);
+        // Map distance (0-28) to temperature range (75-105)
+        targetTemp = map(distance, 0, 28, 105, 75);
     }
 
     if (temperature < targetTemp) {
       analogWrite(PWMPin, 255); 
+      digitalWrite(ledPin, HIGH);
     } else {
       analogWrite(PWMPin, 0);
     }

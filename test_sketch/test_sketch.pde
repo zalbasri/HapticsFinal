@@ -8,6 +8,7 @@ void setup() {
   String portName = Serial.list()[6]; //change the 0 to a 1 or 2 etc. to match your port
   println(portName);
   myPort = new Serial(this, portName, 115200); //make sure baud rate matches Arduino
+  delay(1000);
 }
 
 void draw() {
