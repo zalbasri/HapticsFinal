@@ -96,16 +96,6 @@ void draw () {
   stroke(127,34,255);     //stroke color
   strokeWeight(2);        //stroke wider
   
-  print(" key pressed: ");
-  print(key_press);
-  print(" theta :");
-  print(char_theta);
-  print(" position x:");
-  print(char_position_x);
-  print(" position y:");
-  print(char_position_y);
-  print("\n");
-  
   //generate the point where the orb is
   while(orb_not_generated == true){
     orb_position_x = 1;floor(random(0,num_walls));
@@ -114,9 +104,6 @@ void draw () {
     if (wall_array[orb_position_y][orb_position_x] == 0){
       orb_not_generated = false;}
   }
- 
-  println(orb_position_x);
-  println(orb_position_y);
   
   //set position before checking for collisions
   int temp_position_x = char_position_x;
@@ -209,12 +196,13 @@ void draw () {
   myPort.write(Integer.toString(orb_distance)); 
   myPort.write('\n');
   
-  print("\nOrb distance x :");
-  print(orb_distance_x);
-  print("\tOrb distance y :");
-  print(orb_distance_y);
-  print("\tOrb distance :");
-  print(orb_distance);
+  // for testing
+  //print("\nOrb distance x :");
+  //print(orb_distance_x);
+  //print("\tOrb distance y :");
+  //print(orb_distance_y);
+  //print("\tOrb distance :");
+  //print(orb_distance);
   
   //add random object position setting code here
   //calculate position from object to the character goes here

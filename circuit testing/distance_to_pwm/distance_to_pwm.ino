@@ -45,8 +45,8 @@ void loop() {
         if (distance < 0) distance = 0;
         if (distance > 28) distance = 28;
 
-        // Map distance (0-28) to temperature range (75-105)
-        targetTemp = map(distance, 0, 28, 105, 75);
+        // Map distance (0-28) to temperature range (75-108)
+        targetTemp = map(distance, 0, 28, 108, 75);
     }
 
     if (temperature < targetTemp) {
