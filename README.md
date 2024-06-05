@@ -4,4 +4,4 @@ SparkFun STTS22H Arduino Library: https://github.com/sparkfun/SparkFun_STTS22H_A
 Programs to run for game: controller.ino, graphics.pde<br />
 Notes:
 - Run Arduino code first
-- Change port number in graphics.pdu according to your device
+- Change port number in graphics.pde according to your device
